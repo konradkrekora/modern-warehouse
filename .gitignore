@@ -1,0 +1,34 @@
+# --- Java / Maven ---
+target/
+*.class
+*.jar
+*.war
+*.ear
+/product-service/mvnw
+/product-service/mvnw.cmd
+/product-service/.mvn/wrapper/maven-wrapper.jar
+
+# --- IntelliJ / VS Code / IDE ---
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+.vscode/
+.settings/
+.project
+.classpath
+
+# --- System / WSL ---
+.DS_Store
+Thumbs.db
+.bashrc
+.sdkman/
+*.swp
+*~
+
+# --- Docker & Env ---
+.docker/
+*.log
+.env
+.env.local
