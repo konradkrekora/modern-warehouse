@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/products")
@@ -13,8 +14,8 @@ public class ProductController {
     private final ProductService productService;
 
     @GetMapping
-    public List<Product> getProducts() {
-        return productService.getAllProducts();
+    public List<Product> getProducts(@RequestParam Optional<String> name) {
+        return productService.getProducts(name);
     }
 
     @PostMapping
@@ -26,9 +27,4 @@ public class ProductController {
     public Product getProductById(@PathVariable Long id) {
         return productService.getProductById(id);
     }
-    @GetMapping("/{search}")
-    public List<Product> searchProducts(@PathVariable String name) {
-        return productService.findProductsByName(name);
-    }
-
 }

@@ -4,16 +4,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class ProductService {
 
     private final ProductRepository productRepository;
-
-    public List<Product> getAllProducts() {
-        return productRepository.findAll();
-    }
 
     public Product addProduct(Product product) {
         return productRepository.save(product);
@@ -24,7 +21,9 @@ public class ProductService {
                 .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
     }
 
-    public List<Product> findProductsByName(String name) {
-        return productRepository.findByNameContainingIgnoreCase(name);
+    public List<Product> getProducts(Optional<String> name) {
+        return name
+                .map(productRepository::findByNameContainingIgnoreCase)
+                .orElseGet(productRepository::findAll);
     }
 }
