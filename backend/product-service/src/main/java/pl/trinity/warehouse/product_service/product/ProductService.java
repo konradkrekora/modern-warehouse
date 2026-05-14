@@ -3,6 +3,7 @@ package pl.trinity.warehouse.product_service.product;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import pl.trinity.warehouse.product_service.exception.ProductNotFoundException;
+import pl.trinity.warehouse.product_service.exception.SkuAlreadyExistsException;
 
 import java.util.List;
 import java.util.Optional;
@@ -14,6 +15,9 @@ public class ProductService {
     private final ProductRepository productRepository;
 
     public Product addProduct(Product product) {
+        if (productRepository.existsBySku(product.getSku())) {
+            throw new SkuAlreadyExistsException(product.getSku());
+        }
         return productRepository.save(product);
     }
 

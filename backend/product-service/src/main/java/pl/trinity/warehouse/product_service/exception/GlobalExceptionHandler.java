@@ -1,5 +1,6 @@
 package pl.trinity.warehouse.product_service.exception;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -33,5 +34,20 @@ public class GlobalExceptionHandler {
         problemDetail.setTitle("Invalid Request Parameters");
         problemDetail.setProperty("errors", errors); // Tu wrzucamy naszą listę błędów
         return problemDetail;
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ProblemDetail handleDataIntegrity(DataIntegrityViolationException ex) {
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
+                HttpStatus.CONFLICT,
+                "Data integrity violation: Likely a duplicate SKU or other unique constraint"
+        );
+        problemDetail.setTitle("Conflict");
+        return problemDetail;
+    }
+
+    @ExceptionHandler(SkuAlreadyExistsException.class)
+    public ProblemDetail handleSkuExists(SkuAlreadyExistsException ex) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
     }
 }

@@ -25,7 +25,8 @@ public class Product {
     @Size(min = 3, max = 100, message = "Name must be between 3 and 100 characters")
     private String name;
 
-    @Column(unique = true)
+    @Column(unique = true, nullable = false)
+    @NotBlank(message = "SKU is required")
     private String sku;
 
     @NotNull(message = "Price is required")
