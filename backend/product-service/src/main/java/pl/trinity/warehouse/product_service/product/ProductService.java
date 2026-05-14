@@ -2,6 +2,7 @@ package pl.trinity.warehouse.product_service.product;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import pl.trinity.warehouse.product_service.exception.ProductNotFoundException;
 
 import java.util.List;
 import java.util.Optional;
@@ -18,7 +19,7 @@ public class ProductService {
 
     public Product getProductById(Long id) {
         return productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
+                .orElseThrow(() -> new ProductNotFoundException(id));
     }
 
     public List<Product> getProducts(Optional<String> name) {

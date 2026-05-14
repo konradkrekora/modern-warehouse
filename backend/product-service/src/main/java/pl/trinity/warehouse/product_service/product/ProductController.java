@@ -1,6 +1,8 @@
 package pl.trinity.warehouse.product_service.product;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,11 +21,12 @@ public class ProductController {
     }
 
     @PostMapping
-    public Product createProduct(@RequestBody Product product) {
+    public Product createProduct(@Valid @RequestBody Product product) {
         return productService.addProduct(product);
     }
 
     @GetMapping("/{id}")
+    @ResponseStatus(HttpStatus.CREATED)
     public Product getProductById(@PathVariable Long id) {
         return productService.getProductById(id);
     }
