@@ -21,13 +21,20 @@ public class ProductController {
     }
 
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public Product createProduct(@Valid @RequestBody Product product) {
         return productService.addProduct(product);
     }
 
     @GetMapping("/{id}")
-    @ResponseStatus(HttpStatus.CREATED)
     public Product getProductById(@PathVariable Long id) {
         return productService.getProductById(id);
+    }
+
+    @GetMapping("/sku/{sku}")
+    public Product getProductBySku(@PathVariable String sku) {
+        return productService.getProductBySku(sku);
+        // Ta metoda w serwisie powinna wołać repo.findBySku(sku)
+        // i rzucać ProductNotFoundException jeśli nie ma takiego SKU!
     }
 }

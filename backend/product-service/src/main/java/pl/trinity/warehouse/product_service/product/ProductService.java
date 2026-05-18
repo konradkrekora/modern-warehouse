@@ -26,6 +26,11 @@ public class ProductService {
                 .orElseThrow(() -> new ProductNotFoundException(id));
     }
 
+    public Product getProductBySku(String sku) {
+        return productRepository.findBySku(sku)
+                .orElseThrow(() -> new ProductNotFoundException(sku));
+    }
+
     public List<Product> getProducts(Optional<String> name) {
         return name
                 .map(productRepository::findByNameContainingIgnoreCase)
