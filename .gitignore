@@ -1,34 +1,29 @@
-# --- Java / Maven ---
-target/
-*.class
-*.jar
-*.war
-*.ear
-/product-service/mvnw
-/product-service/mvnw.cmd
-/product-service/.mvn/wrapper/maven-wrapper.jar
-
-# --- IntelliJ / VS Code / IDE ---
+# IDE
 .idea/
 *.iml
 *.iws
 *.ipr
-out/
 .vscode/
 .settings/
 .project
 .classpath
+.factorypath
+.apt_generated
 
-# --- System / WSL ---
+# Build / Target
+target/
+build/
+bin/
+out/
+
+# Maven / Java
+.mvn/
+*.log
+*.class
+*.jar
+*.war
+*.ear
+
+# Systemowe
 .DS_Store
 Thumbs.db
-.bashrc
-.sdkman/
-*.swp
-*~
-
-# --- Docker & Env ---
-.docker/
-*.log
-.env
-.env.local

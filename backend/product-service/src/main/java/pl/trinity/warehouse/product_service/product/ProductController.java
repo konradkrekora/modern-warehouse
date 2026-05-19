@@ -34,7 +34,5 @@ public class ProductController {
     @GetMapping("/sku/{sku}")
     public Product getProductBySku(@PathVariable String sku) {
         return productService.getProductBySku(sku);
-        // Ta metoda w serwisie powinna wołać repo.findBySku(sku)
-        // i rzucać ProductNotFoundException jeśli nie ma takiego SKU!
     }
 }
