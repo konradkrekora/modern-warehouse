@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import pl.trinity.warehouse.warehouse_service.dto.ProductDto;
 
-@FeignClient(name = "product-service")
+@FeignClient(name = "product-service", fallback = ProductClientFallback.class)
 public interface ProductClient {
 
     // Ta metoda musi idealnie odpowiadać endpointowi z ProductController
