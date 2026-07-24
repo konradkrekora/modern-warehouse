@@ -18,3 +18,13 @@ services:
       POSTGRES_PASSWORD: password
     ports:
       - "5433:5432"
+
+  postgres-user:
+    image: postgres:17-alpine
+    container_name: user-db
+    environment:
+      POSTGRES_DB: user_db
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5434:5432"
