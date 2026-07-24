@@ -11,10 +11,12 @@ public class GatewayConfig {
     @Bean
     public RouteLocator customRouteLocator(RouteLocatorBuilder builder) {
         return builder.routes()
+                // USER-SERVICE
+                .route("auth-route", r -> r.path("/auth/**")
+                        .uri("lb://user-service"))
                 // PRODUCT-SERVICE
                 .route("product-route", r -> r.path("/api/products/**")
                         .uri("lb://product-service"))
-
                 // WAREHOUSE-SERVICE
                 .route("warehouse-route", r -> r.path("/api/warehouse/**", "/api/stocks/**")
                         .uri("lb://warehouse-service"))
