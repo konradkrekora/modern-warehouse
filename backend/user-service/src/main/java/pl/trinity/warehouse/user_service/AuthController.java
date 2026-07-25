@@ -1,13 +1,16 @@
 package pl.trinity.warehouse.user_service;
 
-import org.springframework.http.HttpStatus;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import pl.trinity.warehouse.user_service.dto.AuthResponse;
+import pl.trinity.warehouse.user_service.dto.LoginRequest;
+import pl.trinity.warehouse.user_service.dto.MessageResponse;
+import pl.trinity.warehouse.user_service.dto.RegisterRequest;
 import pl.trinity.warehouse.user_service.user.UserEntity;
 import pl.trinity.warehouse.user_service.user.UserRepository;
-
-import java.util.Map;
 
 @RestController
 @RequestMapping("/auth")
@@ -24,28 +27,31 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody Map<String, String> request) {
-        if (userRepository.findByUsername(request.get("username")).isPresent()) {
-            return ResponseEntity.badRequest().body(Map.of("error", "Użytkownik już istnieje!"));
+    public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest request) {
+        if (userRepository.findByUsername(request.username()).isPresent()) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Użytkownik o podanej nazwie już istnieje!"));
         }
 
+        String role = (request.role() != null && !request.role().isBlank())
+                ? request.role()
+                : "ROLE_PRACOWNIK";
+
         UserEntity newUser = new UserEntity(
-                request.get("username"),
-                passwordEncoder.encode(request.get("password")), // Hashujemy hasło przed zapisem!
-                request.getOrDefault("role", "ROLE_PRACOWNIK")
+                request.username(),
+                passwordEncoder.encode(request.password()),
+                role
         );
         userRepository.save(newUser);
-        return ResponseEntity.ok(Map.of("message", "Pracownik zarejestrowany pomyślnie"));
+        return ResponseEntity.ok(new MessageResponse("Użytkownik zarejestrowany pomyślnie"));
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody Map<String, String> request) {
-        return userRepository.findByUsername(request.get("username"))
-                .filter(user -> passwordEncoder.matches(request.get("password"), user.getPassword()))
-                .map(user -> {
-                    String token = jwtUtil.generateToken(user.getUsername(), user.getRole());
-                    return ResponseEntity.ok((Object) Map.of("token", token));
-                })
-                .orElseGet(() -> ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Błędne dane!")));
+    public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
+        UserEntity user = userRepository.findByUsername(request.username())
+                .filter(u -> passwordEncoder.matches(request.password(), u.getPassword()))
+                .orElseThrow(() -> new BadCredentialsException("Błędna nazwa użytkownika lub hasło!"));
+
+        String token = jwtUtil.generateToken(user.getUsername(), user.getRole());
+        return ResponseEntity.ok(new AuthResponse(token));
     }
 }
