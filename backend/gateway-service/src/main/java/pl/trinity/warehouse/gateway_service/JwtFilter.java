@@ -1,6 +1,7 @@
 package pl.trinity.warehouse.gateway_service;
 
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
@@ -32,13 +33,23 @@ public class JwtFilter implements WebFilter {
                 String username = jwtUtil.extractUsername(token);
                 String role = jwtUtil.getClaims(token).get("role", String.class);
 
-                // Tworzymy obiekt uwierzytelnienia dla Spring Security
+                // 1. Obiekt uwierzytelnienia dla Spring Security w Gatewayu
                 UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
                         username, null, List.of(new SimpleGrantedAuthority(role))
                 );
 
+                // 2. NOWOŚĆ: Doklejenie nagłówków HTTP dla mikroserwisów docelowych
+                ServerHttpRequest modifiedRequest = exchange.getRequest().mutate()
+                        .header("X-User-Name", username)
+                        .header("X-User-Role", role)
+                        .build();
+
+                ServerWebExchange modifiedExchange = exchange.mutate()
+                        .request(modifiedRequest)
+                        .build();
+
                 // W WebFlux Security Context przekazuje się w strumieniu (ReactiveSecurityContextHolder)
-                return chain.filter(exchange)
+                return chain.filter(modifiedExchange)
                         .contextWrite(ReactiveSecurityContextHolder.withAuthentication(auth));
             }
         }
