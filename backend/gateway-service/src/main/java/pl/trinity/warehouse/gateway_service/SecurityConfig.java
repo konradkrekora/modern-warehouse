@@ -11,19 +11,22 @@ import org.springframework.security.web.server.SecurityWebFilterChain;
 @EnableWebFluxSecurity
 public class SecurityConfig {
 
-    private final JwtFilter jwtFilter;
+    private final JwtUtil jwtUtil;
 
-    public SecurityConfig(JwtFilter jwtFilter) {
-        this.jwtFilter = jwtFilter;
+    public SecurityConfig(JwtUtil jwtUtil) {
+        this.jwtUtil = jwtUtil;
     }
 
     @Bean
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
+
+        JwtFilter jwtFilter = new JwtFilter(jwtUtil);
+
         return http
                 // W architekturze z tokenami JWT bez CSRF, bo tokeny same w sobie chronią przed tym atakiem
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .authorizeExchange(exchanges -> exchanges
-                        // Adresy logowania i rejestracji pracowników będą publiczne
+                        // Adresy logowania i rejestracji będą publiczne
                         .pathMatchers("/auth/**").permitAll()
                         // Każde inne żądanie do mikroserwisów WYMAGA zalogowania
                         .anyExchange().authenticated()

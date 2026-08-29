@@ -1,11 +1,11 @@
 package pl.trinity.warehouse.gateway_service;
 
+import org.jspecify.annotations.NonNull;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
-import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
@@ -13,7 +13,6 @@ import reactor.core.publisher.Mono;
 
 import java.util.List;
 
-@Component
 public class JwtFilter implements WebFilter {
 
     private final JwtUtil jwtUtil;
@@ -23,7 +22,8 @@ public class JwtFilter implements WebFilter {
     }
 
     @Override
-    public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
+    @NonNull
+    public Mono<Void> filter(ServerWebExchange exchange,@NonNull WebFilterChain chain) {
         String authHeader = exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
 
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
@@ -33,12 +33,12 @@ public class JwtFilter implements WebFilter {
                 String username = jwtUtil.extractUsername(token);
                 String role = jwtUtil.getClaims(token).get("role", String.class);
 
-                // 1. Obiekt uwierzytelnienia dla Spring Security w Gatewayu
+                // Obiekt uwierzytelnienia dla Spring Security w Gatewayu
                 UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
                         username, null, List.of(new SimpleGrantedAuthority(role))
                 );
 
-                // 2. NOWOŚĆ: Doklejenie nagłówków HTTP dla mikroserwisów docelowych
+                // Doklejenie nagłówków HTTP
                 ServerHttpRequest modifiedRequest = exchange.getRequest().mutate()
                         .header("X-User-Name", username)
                         .header("X-User-Role", role)
