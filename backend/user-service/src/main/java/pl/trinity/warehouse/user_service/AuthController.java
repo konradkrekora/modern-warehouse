@@ -9,6 +9,7 @@ import pl.trinity.warehouse.user_service.dto.AuthResponse;
 import pl.trinity.warehouse.user_service.dto.LoginRequest;
 import pl.trinity.warehouse.user_service.dto.MessageResponse;
 import pl.trinity.warehouse.user_service.dto.RegisterRequest;
+import pl.trinity.warehouse.user_service.exception.UserAlreadyExistsException;
 import pl.trinity.warehouse.user_service.user.UserEntity;
 import pl.trinity.warehouse.user_service.user.UserRepository;
 
@@ -29,7 +30,7 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest request) {
         if (userRepository.findByUsername(request.username()).isPresent()) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Użytkownik o podanej nazwie już istnieje!"));
+            throw new UserAlreadyExistsException();
         }
 
         String role = (request.role() != null && !request.role().isBlank())
