@@ -3,6 +3,7 @@ package pl.trinity.warehouse.product_service.product;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import pl.trinity.warehouse.product_service.dto.ProductRequest;
 import pl.trinity.warehouse.product_service.dto.ProductResponse;
 import pl.trinity.warehouse.product_service.exception.ProductNotFoundException;
 import pl.trinity.warehouse.product_service.exception.SkuAlreadyExistsException;
@@ -16,45 +17,64 @@ public class ProductService {
 
     private final ProductRepository productRepository;
 
-    public Product addProduct(Product product) {
-        if (productRepository.existsBySku(product.getSku())) {
-            throw new SkuAlreadyExistsException(product.getSku());
+    public ProductResponse addProduct(ProductRequest request) {
+        if (productRepository.existsBySku(request.sku())) {
+            throw new SkuAlreadyExistsException(request.sku());
         }
-        return productRepository.save(product);
+
+        Product product = Product.builder()
+                .name(request.name())
+                .sku(request.sku())
+                .price(request.price())
+                .build();
+
+        Product savedProduct = productRepository.save(product);
+        return mapToResponse(savedProduct);
     }
 
-    public Product getProductById(Long id) {
-        return productRepository.findById(id)
+    public ProductResponse getProductById(Long id) {
+        Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ProductNotFoundException(id));
+        return mapToResponse(product);
     }
 
-    public Product getProductBySku(String sku) {
-        return productRepository.findBySku(sku)
+    public ProductResponse getProductBySku(String sku) {
+        Product product = productRepository.findBySku(sku)
                 .orElseThrow(() -> new ProductNotFoundException(sku));
+        return mapToResponse(product);
     }
 
-    public List<Product> getProducts(Optional<String> name) {
-        return name
+    public List<ProductResponse> getProducts(Optional<String> name) {
+        List<Product> products = name
                 .map(productRepository::findByNameContainingIgnoreCase)
                 .orElseGet(productRepository::findAll);
+
+        return products.stream()
+                .map(this::mapToResponse)
+                .toList();
     }
 
-    public Product updateProduct(Long id, @Valid Product product) {
-        Product existingProduct = productRepository.getProductById(id);
-        existingProduct.setName(product.getName());
-        existingProduct.setSku(product.getSku());
-        existingProduct.setPrice(product.getPrice());
-        return productRepository.save(existingProduct);
+    public ProductResponse updateProduct(Long id, ProductRequest request) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new ProductNotFoundException(id));
+
+        // Jeśli SKU uległo zmianie, sprawdzamy czy nowe SKU nie jest zajęte
+        if (!product.getSku().equals(request.sku()) && productRepository.existsBySku(request.sku())) {
+            throw new SkuAlreadyExistsException(request.sku());
+        }
+
+        product.setName(request.name());
+        product.setSku(request.sku());
+        product.setPrice(request.price());
+
+        Product updatedProduct = productRepository.save(product);
+        return mapToResponse(updatedProduct);
     }
 
     public void deleteProduct(Long id) {
-        Product existingProduct = getProductById(id);
-        productRepository.delete(existingProduct);
-    }
-
-    private Product findEntityById(Long id) {
-        return productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new ProductNotFoundException(id));
+        productRepository.delete(product);
     }
 
     private ProductResponse mapToResponse(Product product) {

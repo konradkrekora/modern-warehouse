@@ -4,6 +4,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import pl.trinity.warehouse.product_service.dto.ProductRequest;
+import pl.trinity.warehouse.product_service.dto.ProductResponse;
 
 import java.util.List;
 import java.util.Optional;
@@ -16,28 +18,28 @@ public class ProductController {
     private final ProductService productService;
 
     @GetMapping
-    public List<Product> getProducts(@RequestParam Optional<String> name) {
+    public List<ProductResponse> getProducts(@RequestParam Optional<String> name) {
         return productService.getProducts(name);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Product createProduct(@Valid @RequestBody Product product) {
+    public ProductResponse createProduct(@Valid @RequestBody ProductRequest product) {
         return productService.addProduct(product);
     }
 
     @GetMapping("/{id}")
-    public Product getProductById(@PathVariable Long id) {
+    public ProductResponse getProductById(@PathVariable Long id) {
         return productService.getProductById(id);
     }
 
     @GetMapping("/sku/{sku}")
-    public Product getProductBySku(@PathVariable String sku) {
+    public ProductResponse getProductBySku(@PathVariable String sku) {
         return productService.getProductBySku(sku);
     }
 
     @PutMapping("/{id}")
-    public Product updateProduct(@PathVariable Long id, @Valid @RequestBody Product product) {
+    public ProductResponse updateProduct(@PathVariable Long id, @Valid @RequestBody ProductRequest product) {
         return productService.updateProduct(id, product);
     }
 
