@@ -8,11 +8,9 @@ import pl.trinity.warehouse.warehouse_service.dto.ProductDto;
 @FeignClient(name = "product-service", fallback = ProductClientFallback.class)
 public interface ProductClient {
 
-    // Ta metoda musi idealnie odpowiadać endpointowi z ProductController
     @GetMapping("/api/products/{id}")
-    Object getProductById(@PathVariable("id") Long id);
+    ProductDto getProductById(@PathVariable("id") Long id);
 
-    // product-service ma endpoint: GET /api/products/search?sku=XYZ
     @GetMapping("/api/products/sku/{sku}")
     ProductDto getProductBySku(@PathVariable("sku") String sku);
 }

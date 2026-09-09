@@ -19,7 +19,7 @@ public class StockService {
     private final ProductClient productClient;
 
     @Transactional
-    public Stock setStock(@Valid Stock stock) {
+    public Stock setStock(Stock stock) {
         try {
             ProductDto product = productClient.getProductBySku(stock.getSku());
             if (product == null) {
