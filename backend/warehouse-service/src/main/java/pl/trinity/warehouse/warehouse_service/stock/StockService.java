@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import pl.trinity.warehouse.warehouse_service.client.ProductClient;
 import pl.trinity.warehouse.warehouse_service.dto.ProductDto;
+import pl.trinity.warehouse.warehouse_service.exception.ProductNotFoundException;
 import pl.trinity.warehouse.warehouse_service.exception.StockNotFoundException;
 
 import java.util.List;
@@ -23,10 +24,10 @@ public class StockService {
         try {
             ProductDto product = productClient.getProductBySku(stock.getSku());
             if (product == null) {
-                throw new StockNotFoundException(stock.getSku());
+                throw new ProductNotFoundException(stock.getSku());
             }
         } catch (feign.FeignException.NotFound e) {
-            throw new StockNotFoundException(stock.getSku());
+            throw new ProductNotFoundException(stock.getSku());
         }
 
         return stockRepository.findBySku(stock.getSku())
